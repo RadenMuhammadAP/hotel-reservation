@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.example.hotelreservation.service.ReservationResult;
 import org.springframework.http.HttpStatus;
+import java.util.List;
 
 /**
  * REST Controller untuk mengelola reservasi hotel.
@@ -68,4 +69,15 @@ public class ReservationController {
     public Reservation cancelReservation(@PathVariable Long id) {
         return reservationService.cancelReservation(id);
     }
+	
+    /**
+     * Mengambil daftar semua reservasi yang tersedia.
+     *
+     * @return list dari semua reservasi
+     */	
+    @GetMapping
+    public List<Reservation> getAllReservations() {
+        return reservationService.getAllReservations();
+    }	
+	
 }

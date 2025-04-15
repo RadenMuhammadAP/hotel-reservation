@@ -93,5 +93,13 @@ public class ReservationService {
 
         return reservation;
     }
+    /**
+     * Mengambil seluruh data reservasi dari database.
+     *
+     * @return List berisi seluruh Reservasi
+     */	
+    public List<Reservation> getAllReservations() {
+        return reservationRepo.findAll();
+    }	
 }
 
