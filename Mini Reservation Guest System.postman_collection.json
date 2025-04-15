@@ -111,6 +111,15 @@
 				"url": "http://localhost:8080/rooms"
 			},
 			"response": []
+		},
+		{
+			"name": "List of Reservation Details",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:8080/reservations"
+			},
+			"response": []
 		}
 	]
 }
