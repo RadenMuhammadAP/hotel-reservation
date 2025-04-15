@@ -1,0 +1,116 @@
+{
+	"info": {
+		"_postman_id": "16674f95-57bd-4f84-9cd0-0ca62d1afe8b",
+		"name": "Mini Reservation Guest System",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "24797723"
+	},
+	"item": [
+		{
+			"name": "Book the Rooms",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"roomType\": \"Deluxe\",\r\n  \"price\": 250000.0\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/rooms",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"rooms"
+					],
+					"query": [
+						{
+							"key": "roomType",
+							"value": "Deluxe",
+							"disabled": true
+						},
+						{
+							"key": "price",
+							"value": "250000.0",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Make a Reservation",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"customerName\": \"Raden\",\r\n  \"room\": {\r\n    \"id\": 14\r\n  },\r\n  \"checkInDate\": \"2025-04-16\",\r\n  \"checkOutDate\": \"2025-04-18\",\r\n  \"status\": \"RESERVED\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8080/reservations"
+			},
+			"response": []
+		},
+		{
+			"name": "View the Reservation Details by ID",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8080/reservations/13"
+			},
+			"response": []
+		},
+		{
+			"name": "Cancel a Reservation",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8080/reservations/13"
+			},
+			"response": []
+		},
+		{
+			"name": "List of Room Details",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:8080/rooms"
+			},
+			"response": []
+		}
+	]
+}
