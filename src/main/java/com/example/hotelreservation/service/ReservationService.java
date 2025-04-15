@@ -3,18 +3,15 @@ package com.example.hotelreservation.service;
 import com.example.hotelreservation.model.*;
 import com.example.hotelreservation.repository.ReservationRepository;
 import com.example.hotelreservation.repository.RoomRepository;
-import lombok.RequiredArgsConstructor;
+import com.example.hotelreservation.exception.ReservationErrorType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+
 import java.util.Optional;
 import java.util.List;
-import com.example.hotelreservation.model.ReservationStatus;
-import com.example.hotelreservation.exception.ReservationErrorType;
-import com.example.hotelreservation.service.ReservationResult;
-import org.springframework.http.HttpStatus;
 
+/**
+ * Service yang menangani logika bisnis untuk pemesanan (reservation).
+ */
 @Service
 public class ReservationService {
 
@@ -25,46 +22,76 @@ public class ReservationService {
         this.reservationRepo = reservationRepo;
         this.roomRepo = roomRepo;
     }
-	
-	public ReservationResult createReservation(Reservation reservation) {
-		Room room = reservation.getRoom();
-		if (room != null) {
-			room = roomRepo.findById(room.getId()).orElse(null);
-		}
-		if (room == null) {
-			return ReservationResult.error(ReservationErrorType.ROOM_NOT_FOUND);
-		}
-		List<Reservation> existingReservations = reservationRepo.findByRoomIdAndStatus(room.getId(), ReservationStatus.RESERVED);
-		for (Reservation existing : existingReservations) {
-			boolean isOverlap =
-				!(reservation.getCheckOutDate().isBefore(existing.getCheckInDate()) ||
-				  reservation.getCheckInDate().isAfter(existing.getCheckOutDate()));
-			if (isOverlap) {
-				 return ReservationResult.error(ReservationErrorType.DATE_CONFLICT);
-			}
-		}
-		room.setAvailability(Availability.BOOKED);
-		roomRepo.save(room);
-		reservation.setRoom(room);
-		reservation.setStatus(ReservationStatus.RESERVED);
-		return ReservationResult.success(reservationRepo.save(reservation));
-	}
-	
+
+    /**
+     * Membuat reservasi baru jika tidak terjadi konflik tanggal dan kamar tersedia.
+     *
+     * @param reservation data reservasi yang akan dibuat
+     * @return hasil dari proses reservasi, bisa sukses atau gagal dengan jenis error
+     */
+    public ReservationResult createReservation(Reservation reservation) {
+        Room room = reservation.getRoom();
+
+        // Cek apakah kamar yang dimaksud tersedia di database
+        if (room != null) {
+            room = roomRepo.findById(room.getId()).orElse(null);
+        }
+        if (room == null) {
+            return ReservationResult.error(ReservationErrorType.ROOM_NOT_FOUND);
+        }
+
+        // Cek apakah ada reservasi aktif lain yang tanggalnya bertabrakan
+        List<Reservation> existingReservations = reservationRepo.findByRoomIdAndStatus(room.getId(), ReservationStatus.RESERVED);
+        for (Reservation existing : existingReservations) {
+            boolean isOverlap =
+                !(reservation.getCheckOutDate().isBefore(existing.getCheckInDate()) ||
+                  reservation.getCheckInDate().isAfter(existing.getCheckOutDate()));
+            if (isOverlap) {
+                return ReservationResult.error(ReservationErrorType.DATE_CONFLICT);
+            }
+        }
+
+        // Tandai kamar sebagai dipesan
+        room.setAvailability(Availability.BOOKED);
+        roomRepo.save(room);
+
+        // Simpan reservasi dengan status RESERVED
+        reservation.setRoom(room);
+        reservation.setStatus(ReservationStatus.RESERVED);
+        return ReservationResult.success(reservationRepo.save(reservation));
+    }
+
+    /**
+     * Mengambil detail reservasi berdasarkan ID.
+     *
+     * @param id ID dari reservasi
+     * @return Optional<Reservation> jika ditemukan
+     */
     public Optional<Reservation> getReservation(Long id) {
         return reservationRepo.findByIdWithRoom(id);
     }
 
+    /**
+     * Membatalkan reservasi berdasarkan ID dan mengubah status kamar menjadi AVAILABLE kembali.
+     *
+     * @param id ID dari reservasi yang akan dibatalkan
+     * @return Reservasi yang telah dibatalkan
+     */
     public Reservation cancelReservation(Long id) {
-        Reservation reservation = reservationRepo.findByIdWithRoom(id).orElseThrow(() -> new RuntimeException("Not found"));
+        Reservation reservation = reservationRepo.findByIdWithRoom(id)
+                .orElseThrow(() -> new RuntimeException("Not found"));
 
         reservation.setStatus(ReservationStatus.CANCELED);
         reservationRepo.save(reservation);
 
+        // Set status kamar kembali menjadi tersedia
         Room room = roomRepo.findById(reservation.getRoom().getId()).orElse(null);
         if (room != null) {
             room.setAvailability(Availability.AVAILABLE);
             roomRepo.save(room);
         }
+
         return reservation;
     }
 }
+
