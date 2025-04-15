@@ -1,9 +1,4 @@
-# Ignore Gradle project-specific cache directory
-.gradle
-
-# Ignore Gradle build output directory
-build
-# Java
+# Java build outputs
 *.class
 *.jar
 *.war
@@ -14,12 +9,12 @@ build
 build/
 !gradle/wrapper/gradle-wrapper.jar
 
-# IDE
+# IDEs
 .idea/
 *.iml
 .vscode/
 
-# OS
+# OS generated files
 .DS_Store
 Thumbs.db
 
